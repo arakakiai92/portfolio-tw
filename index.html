@@ -178,8 +178,12 @@
                         class="py-2 px-1 text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-1 whitespace-nowrap">
                         🍤 炸蝦貓 <span id="count-shrimp" class="text-[10px] opacity-60">0</span>
                     </button>
-                    <button onclick="switchCategory('others')" id="tab-others"
+                    <button onclick="switchCategory('themes')" id="tab-themes"
                         class="py-2 px-1 text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-1 whitespace-nowrap">
+                        🎨 主題 <span id="count-themes" class="text-[10px] opacity-60">0</span>
+                    </button>
+                    <button onclick="switchCategory('others')" id="tab-others"
+                        class="col-span-3 py-2 px-1 text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-1 whitespace-nowrap">
                         ⭐️ 其他 <span id="count-others" class="text-[10px] opacity-60">0</span>
                     </button>
                 </div>
@@ -195,25 +199,6 @@
                         台灣熱賣</button>
                 </div>
 
-                <!-- サブフィルター：すべて ⇄ 各種カテゴリ -->
-                <div id="sub-filter-bar" class="flex flex-wrap justify-start gap-1.5 border-t border-gray-100 pt-3 transition-opacity">
-                    <button onclick="filterType('all')" id="sub-all"
-                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">全部</button>
-                    <button onclick="filterType('sticker')" id="sub-sticker"
-                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">貼圖</button>
-                    <button onclick="filterType('animated-sticker')" id="sub-animated-sticker"
-                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">動く貼圖</button>
-                    <button onclick="filterType('popup-sticker')" id="sub-popup-sticker"
-                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">大きく動く貼圖</button>
-                    <button onclick="filterType('effect-sticker')" id="sub-effect-sticker"
-                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">背景が大きく動く貼圖</button>
-                    <button onclick="filterType('emoji')" id="sub-emoji"
-                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">表情貼</button>
-                    <button onclick="filterType('animated-emoji')" id="sub-animated-emoji"
-                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">動く表情貼</button>
-                    <button onclick="filterType('theme')" id="sub-theme"
-                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">主題</button>
-                </div>
             </div>
 
             <!-- スケルトンローディング表示 -->
@@ -421,6 +406,8 @@
                 filtered = allStamps.filter(stamp => {
                     if (currentCategory === 'recommended') {
                         if (!isPickNow(stamp)) return false;
+                    } else if (currentCategory === 'themes') {
+                        if (stamp.type !== 'theme') return false;
                     } else if (stamp.category !== currentCategory) {
                         return false;
                     }
@@ -637,6 +624,7 @@
             const keigoCount = allStamps.filter(s => s.category === 'keigo').length;
             const plantsCount = allStamps.filter(s => s.category === 'plants').length;
             const shrimpCount = allStamps.filter(s => s.category === 'shrimp').length;
+            const themesCount = allStamps.filter(s => s.type === 'theme').length;
             const othersCount = allStamps.filter(s => s.category === 'others').length;
 
             document.getElementById('count-recommended').textContent = recommendedCount;
@@ -644,6 +632,7 @@
             document.getElementById('count-keigo').textContent = keigoCount;
             document.getElementById('count-plants').textContent = plantsCount;
             document.getElementById('count-shrimp').textContent = shrimpCount;
+            document.getElementById('count-themes').textContent = themesCount;
             document.getElementById('count-others').textContent = othersCount;
             document.getElementById('total-count').textContent = `共 ${allStamps.length} 件作品・台灣也能購買！`;
         }
@@ -657,7 +646,7 @@
             currentCategory = category;
             localStorage.setItem('portfoliotw_category', category);
 
-            ['recommended', 'okinawa', 'keigo', 'plants', 'shrimp', 'others'].forEach(cat => {
+            ['recommended', 'okinawa', 'keigo', 'plants', 'shrimp', 'themes', 'others'].forEach(cat => {
                 const tab = document.getElementById(`tab-${cat}`);
                 if (tab) {
                     if (cat === category) {
@@ -706,7 +695,7 @@
 
             changeSort(savedSort);
             switchCategory(savedCategory);
-            filterType(savedType);
+            filterType('all');
 
             const stamps = await fetchSpreadsheetData();
             allStamps = stamps;
