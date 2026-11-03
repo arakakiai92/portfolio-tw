@@ -157,30 +157,30 @@
                 </div>
 
                 <!-- 🌟 メインタブ：✨ 推し ⇄ 🌺 沖縄 ⇄ 🌸 敬語 ⇄ ⭐️ その他 -->
-                <div id="category-tab-bar" class="flex gap-1 transition-opacity">
+                <div id="category-tab-bar" class="grid grid-cols-3 gap-1.5 transition-opacity">
                     <button onclick="switchCategory('recommended')" id="tab-recommended"
-                        class="flex-1 py-2 px-1 text-[10px] sm:text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-0.5">
-                        🔥 熱賣 (<span id="count-recommended">0</span>)
+                        class="py-2 px-1 text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-1 whitespace-nowrap">
+                        🔥 熱賣 <span id="count-recommended" class="text-[10px] opacity-60">0</span>
                     </button>
                     <button onclick="switchCategory('okinawa')" id="tab-okinawa"
-                        class="flex-1 py-2 px-1 text-[10px] sm:text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-0.5">
-                        🌺 沖繩 (<span id="count-okinawa">0</span>)
+                        class="py-2 px-1 text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-1 whitespace-nowrap">
+                        🌺 沖繩 <span id="count-okinawa" class="text-[10px] opacity-60">0</span>
                     </button>
                     <button onclick="switchCategory('keigo')" id="tab-keigo"
-                        class="flex-1 py-2 px-1 text-[10px] sm:text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-0.5">
-                        🌸 敬語・實用 (<span id="count-keigo">0</span>)
+                        class="py-2 px-1 text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-1 whitespace-nowrap">
+                        🌸 敬語・實用 <span id="count-keigo" class="text-[10px] opacity-60">0</span>
                     </button>
                     <button onclick="switchCategory('plants')" id="tab-plants"
-                        class="flex-1 min-w-[76px] py-2 px-1 text-[11px] font-black rounded-full text-gray-500 transition hover:bg-gray-100">
-                        🌿 鹿角蕨 (<span id="count-plants">0</span>)
+                        class="py-2 px-1 text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-1 whitespace-nowrap">
+                        🌿 鹿角蕨 <span id="count-plants" class="text-[10px] opacity-60">0</span>
                     </button>
                     <button onclick="switchCategory('shrimp')" id="tab-shrimp"
-                        class="flex-1 min-w-[76px] py-2 px-1 text-[11px] font-black rounded-full text-gray-500 transition hover:bg-gray-100">
-                        🍤 炸蝦貓 (<span id="count-shrimp">0</span>)
+                        class="py-2 px-1 text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-1 whitespace-nowrap">
+                        🍤 炸蝦貓 <span id="count-shrimp" class="text-[10px] opacity-60">0</span>
                     </button>
                     <button onclick="switchCategory('others')" id="tab-others"
-                        class="flex-1 py-2 px-1 text-[10px] sm:text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-0.5">
-                        ⭐️ 其他 (<span id="count-others">0</span>)
+                        class="py-2 px-1 text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-1 whitespace-nowrap">
+                        ⭐️ 其他 <span id="count-others" class="text-[10px] opacity-60">0</span>
                     </button>
                 </div>
 
