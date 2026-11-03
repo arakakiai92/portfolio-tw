@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ja" data-build="2026-10-02-feature-cards">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ARAKAKIAIworks 台灣館 | LINE貼圖作品集</title>
+
+    <!-- ファビコンにがま口シーサーをセット -->
+    <link rel="icon" type="image/png" href="https://arakakiai92.github.io/portfolio/favicon.png">
+    <link rel="apple-touch-icon" href="https://arakakiai92.github.io/portfolio/favicon.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for beautiful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- PapaParse for robust CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 携帯（スマホ）特化のコンテナ設計 */
+        .phone-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border-left: 1px solid #f1f5f9;
+            border-right: 1px solid #f1f5f9;
+        }
+
+        /* 分析アプリと同一トーン of ボタンアクティブ状態 */
+        .btn-active {
+            background-color: #00C300 !important;
+            color: #ffffff !important;
+            border-color: #00C300 !important;
+        }
+
+        /* 2列カードのイメージ比率維持 */
+        .img-aspect-square {
+            aspect-ratio: 1 / 1;
+        }
+
+        /* テキストの2行省略 */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body class="flex justify-center items-start min-h-screen">
+
+    <div class="phone-container">
+
+        <!-- ヘッダー (売上分析アプリのデザインと完全一致) -->
+        <header class="bg-[#00C300] text-white shadow-md sticky top-0 z-50">
+            <div class="px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center">
+                    <!-- がま口なしの可愛いシーサーアイコン (fallback対応) -->
+                    <img src="https://arakakiai92.github.io/portfolio/top-left_2.png" alt="シーサーアイコン" class="h-12 w-auto block object-contain"
+                        onerror="this.onerror=null; this.src='top-left.png';">
+                    <div class="ml-2.5">
+                        <h1 class="text-sm font-bold leading-tight">ARAKAKIAIworks</h1>
+                        <p class="text-[10px] text-green-100" id="total-count">台灣館 (載入中...)</p>
+                    </div>
+                </div>
+                <!-- 🟢 右上：公式LINEへのリンクボタン -->
+                <a href="https://line.me/R/ti/p/@275wshid" target="_blank" rel="noopener noreferrer"
+                    class="flex items-center gap-1 bg-white text-[#00C300] px-2.5 py-1 rounded-full text-[11px] font-black shadow-sm hover:bg-green-50 transition active:scale-95 select-none">
+                    <i class="fa-brands fa-line text-sm text-[#00C300]"></i>公式LINE
+                </a>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="p-4 space-y-4 flex-grow">
+
+            <!-- 📖 雑誌風 特集セクション -->
+            <div class="space-y-2.5">
+                <div class="flex items-center justify-between px-1">
+                    <span class="text-[11px] font-black text-gray-500 flex items-center gap-1 tracking-wider">
+                        <i class="fa-solid fa-sparkles text-amber-500"></i> FEATURE ARTICLES
+                    </span>
+                    <span id="feature-status-text"
+                        class="text-[10px] text-[#00C300] font-bold hidden flex items-center gap-1">
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#00C300] animate-pulse"></span>特集絞り込み中
+                    </span>
+                </div>
+
+                <!-- 特集カード（2分割絞り込みボタン） -->
+                <div class="grid grid-cols-2 gap-2">
+                    <!-- 特集カード 1: 今月の推し -->
+                    <button onclick="toggleFeature('recommended')" id="feature-btn-recommended"
+                        class="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-400 text-white shadow-sm hover:shadow transition active:scale-95 text-left flex flex-col justify-between border-2 border-transparent">
+                        <div class="flex items-center justify-between">
+                            <span
+                                class="text-[9px] font-bold uppercase tracking-wider bg-black/20 px-1.5 py-0.5 rounded-full">Pick
+                                Up</span>
+                            <i class="fa-solid fa-star text-yellow-200 text-xs"></i>
+                        </div>
+                        <div class="mt-2">
+                            <p class="text-[10px] text-amber-100 font-bold leading-tight">看看台灣買家最愛！</p>
+                            <h4 class="text-xs font-black leading-tight mt-0.5">台灣熱賣特集</h4>
+                        </div>
+                    </button>
+
+                    <!-- 特集カード 2: プレミアム解禁 -->
+                    <button onclick="toggleFeature('premium')" id="feature-btn-premium" style="display:none"
+                        class="p-2.5 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-500 text-white shadow-sm hover:shadow transition active:scale-95 text-left flex flex-col justify-between border-2 border-transparent">
+                        <div class="flex items-center justify-between">
+                            <span
+                                class="text-[9px] font-bold uppercase tracking-wider bg-black/20 px-1.5 py-0.5 rounded-full">LINE
+                                Premium</span>
+                            <i class="fa-solid fa-crown text-amber-300 text-xs"></i>
+                        </div>
+                        <div class="mt-2">
+                            <p class="text-[10px] text-purple-200 font-bold leading-tight">使い放題に追加！</p>
+                            <h4 class="text-xs font-black leading-tight mt-0.5">👑 プレミアム作品</h4>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- 特集絞り込み中のリセットバー -->
+                <div id="feature-reset-bar"
+                    class="hidden bg-gray-100 px-3 py-1.5 rounded-lg flex items-center justify-between text-xs">
+                    <span class="text-gray-700 font-bold flex items-center gap-1" id="feature-reset-label">
+                        <i class="fa-solid fa-filter text-[#00C300]"></i> 特集を表示中
+                    </span>
+                    <button onclick="clearFeature()"
+                        class="text-gray-500 hover:text-rose-500 font-bold flex items-center gap-0.5">
+                        <i class="fa-solid fa-xmark"></i> 解除
+                    </button>
+                </div>
+            </div>
+
+            <!-- 検索 & フィルターコントロールパネル -->
+            <div id="filter-panel" class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 space-y-3.5">
+                <!-- 検索バー（通常時のみ表示。特集表示中は非表示） -->
+                <div id="search-input-container" class="relative">
+                    <i
+                        class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="search-input" placeholder="搜尋作品..."
+                        class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00C300] focus:border-[#00C300] transition">
+                </div>
+
+                <!-- 🌟 メインタブ：✨ 推し ⇄ 🌺 沖縄 ⇄ 🌸 敬語 ⇄ ⭐️ その他 -->
+                <div id="category-tab-bar" class="flex gap-1 transition-opacity">
+                    <button onclick="switchCategory('recommended')" id="tab-recommended"
+                        class="flex-1 py-2 px-1 text-[10px] sm:text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-0.5">
+                        🔥 熱賣 (<span id="count-recommended">0</span>)
+                    </button>
+                    <button onclick="switchCategory('okinawa')" id="tab-okinawa"
+                        class="flex-1 py-2 px-1 text-[10px] sm:text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-0.5">
+                        🌺 沖繩 (<span id="count-okinawa">0</span>)
+                    </button>
+                    <button onclick="switchCategory('keigo')" id="tab-keigo"
+                        class="flex-1 py-2 px-1 text-[10px] sm:text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-0.5">
+                        🌸 敬語・實用 (<span id="count-keigo">0</span>)
+                    </button>
+                    <button onclick="switchCategory('plants')" id="tab-plants"
+                        class="flex-1 min-w-[76px] py-2 px-1 text-[11px] font-black rounded-full text-gray-500 transition hover:bg-gray-100">
+                        🌿 鹿角蕨 (<span id="count-plants">0</span>)
+                    </button>
+                    <button onclick="switchCategory('shrimp')" id="tab-shrimp"
+                        class="flex-1 min-w-[76px] py-2 px-1 text-[11px] font-black rounded-full text-gray-500 transition hover:bg-gray-100">
+                        🍤 炸蝦貓 (<span id="count-shrimp">0</span>)
+                    </button>
+                    <button onclick="switchCategory('others')" id="tab-others"
+                        class="flex-1 py-2 px-1 text-[10px] sm:text-xs font-bold rounded-full bg-white text-gray-500 border border-gray-300 hover:bg-gray-50 transition active:scale-95 flex justify-center items-center gap-0.5">
+                        ⭐️ 其他 (<span id="count-others">0</span>)
+                    </button>
+                </div>
+
+                <!-- 📅 最新 ⇄ ❤️ 台灣熱賣 切り替えスイッチパネル -->
+                <div
+                    class="flex items-center justify-end gap-3 text-xs border-t border-gray-100 pt-2 text-gray-400 font-bold">
+                    <span><i class="fa-solid fa-arrows-up-down text-[10px]"></i> 排序:</span>
+                    <button onclick="changeSort('newest')" id="sort-newest" class="text-[#00C300] transition">📅
+                        最新</button>
+                    <span class="text-gray-200">|</span>
+                    <button onclick="changeSort('hearts')" id="sort-hearts" class="hover:text-[#00C300] transition">❤️
+                        台灣熱賣</button>
+                </div>
+
+                <!-- サブフィルター：すべて ⇄ 各種カテゴリ -->
+                <div id="sub-filter-bar" class="flex flex-wrap justify-start gap-1.5 border-t border-gray-100 pt-3 transition-opacity">
+                    <button onclick="filterType('all')" id="sub-all"
+                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">全部</button>
+                    <button onclick="filterType('sticker')" id="sub-sticker"
+                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">貼圖</button>
+                    <button onclick="filterType('animated-sticker')" id="sub-animated-sticker"
+                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">動く貼圖</button>
+                    <button onclick="filterType('popup-sticker')" id="sub-popup-sticker"
+                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">大きく動く貼圖</button>
+                    <button onclick="filterType('effect-sticker')" id="sub-effect-sticker"
+                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">背景が大きく動く貼圖</button>
+                    <button onclick="filterType('emoji')" id="sub-emoji"
+                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">表情貼</button>
+                    <button onclick="filterType('animated-emoji')" id="sub-animated-emoji"
+                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">動く表情貼</button>
+                    <button onclick="filterType('theme')" id="sub-theme"
+                        class="px-3 py-1 text-[11px] font-bold rounded-full bg-white text-gray-500 border border-gray-300 transition hover:bg-gray-50">主題</button>
+                </div>
+            </div>
+
+            <!-- スケルトンローディング表示 -->
+            <div id="loading-placeholder" class="grid grid-cols-2 gap-3">
+                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col space-y-2">
+                    <div class="img-aspect-square bg-gray-100 rounded-lg animate-pulse"></div>
+                    <div class="h-3 bg-gray-100 rounded w-1/3 animate-pulse"></div>
+                    <div class="h-4 bg-gray-100 rounded w-5/6 animate-pulse"></div>
+                </div>
+            </div>
+
+            <!-- 🚧 特集エリア専用の準備中（COMING SOON）画面 -->
+            <div id="feature-coming-soon"
+                class="hidden text-center py-12 px-4 space-y-4 bg-gradient-to-b from-white to-gray-50 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="relative inline-block">
+                    <img src="https://arakakiai92.github.io/portfolio/top-left_2.png" alt="シーサー" class="w-16 h-16 mx-auto object-contain animate-bounce"
+                        onerror="this.onerror=null; this.src='top-left.png';">
+                </div>
+                <div class="space-y-1.5">
+                    <span
+                        class="inline-block text-[10px] font-black text-[#00C300] bg-green-50 px-2.5 py-0.5 rounded-full border border-green-200 tracking-wider">
+                        ✨ COMING SOON... ✨
+                    </span>
+                    <h3 class="text-sm font-black text-gray-800">特集準備中！</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed max-w-[240px] mx-auto">
+                        おすすめ作品のラインナップを更新しています。公開まで少々お待ちください！
+                    </p>
+                </div>
+                <div class="pt-2">
+                    <button onclick="clearFeature(); switchCategory('okinawa');"
+                        class="text-xs text-[#00C300] hover:underline font-bold">
+                        🌺 看沖繩系列作品 →
+                    </button>
+                </div>
+            </div>
+
+            <!-- エラー表示 -->
+            <div id="error-message"
+                class="hidden text-center py-12 px-4 space-y-3 bg-white rounded-xl border border-gray-200 shadow-sm">
+                <i class="fa-solid fa-circle-exclamation text-rose-500 text-3xl"></i>
+                <h3 class="font-bold text-gray-800">資料載入失敗</h3>
+                <p class="text-xs text-gray-500 leading-relaxed max-w-[280px] mx-auto">
+                    スプレッドシートの閲覧設定が「リンクを知っている全員」になっているか、IDが正しいかご確認ください。</p>
+            </div>
+
+            <!-- 空状態表示 -->
+            <div id="empty-state"
+                class="hidden text-center py-16 bg-white rounded-xl border border-gray-200 shadow-sm space-y-2">
+                <i class="fa-regular fa-face-frown text-3xl text-gray-300"></i>
+                <p class="text-sm font-bold text-gray-400">找不到符合的作品</p>
+            </div>
+
+            <!-- 作品グリッド -->
+            <div id="stamp-grid" class="grid grid-cols-2 gap-3 hidden">
+                <!-- JavaScriptにより動的生成されます -->
+            </div>
+
+        </main>
+
+        <!-- フッター -->
+        <footer
+            class="p-4 text-xs text-gray-400 border-t border-gray-100 mt-auto flex justify-between items-center bg-gray-50">
+            <p class="leading-tight">
+                © 2026 <a href="https://store.line.me/search/sticker/zh-Hant?q=arakakiai" target="_blank" rel="noopener noreferrer"
+                    class="text-[#00C300] hover:text-[#009900] font-bold">ARAKAKIAIworks</a>.<br>All Rights Reserved.
+            </p>
+            <img src="https://arakakiai92.github.io/portfolio/bottom-right_2.png" alt="シーサーロゴ" class="h-10 w-auto object-contain block"
+                onerror="this.onerror=null; this.src='bottom-right.png';">
+        </footer>
+
+    </div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        // 🟢 特集を公開状態に設定
+        const TW_WORKS = [{"id": "499585", "title": "實用文字表情貼：暖色系敬語貓咪", "url": "https://store.line.me/emojishop/product/69dca763302c410ddf71964d/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/69dca763302c410ddf71964d/iPhone/main.png", "date": "2026-4-13", "type": "emoji", "category": "keigo", "tw": 13}, {"id": "544469", "title": "會動的！萬用簡約商務禮貌貼圖", "url": "https://store.line.me/emojishop/product/6a30ba4decd6623f20a90ef0/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/6a30ba4decd6623f20a90ef0/iPhone/main.png", "date": "2026-6-16", "type": "animated-emoji", "category": "keigo", "tw": 6}, {"id": "43067291", "title": "會動的！炸蝦貓的軟萌日常", "url": "https://store.line.me/stickershop/product/32975881/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/32975881/LINEStorePC/main.png", "date": "2026-2-16", "type": "animated-sticker", "category": "shrimp", "tw": 6}, {"id": "529889", "title": "實用文字表情貼：可愛敬語狗狗", "url": "https://store.line.me/emojishop/product/6a1696ffca472a3a9ec331e7/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/6a1696ffca472a3a9ec331e7/iPhone/main.png", "date": "2026-5-27", "type": "emoji", "category": "keigo", "tw": 4}, {"id": "43308164", "title": "鹿角蕨（基本與敬語）", "url": "https://store.line.me/stickershop/product/33150606/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/33150606/LINEStorePC/main.png", "date": "2026-3-4", "type": "sticker", "category": "plants", "tw": 4}, {"id": "542923", "title": "實用日語敬語貼圖 - 職場・商務最速回覆", "url": "https://store.line.me/emojishop/product/6a290477f5de9243ee9dbebf/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/6a290477f5de9243ee9dbebf/iPhone/main.png", "date": "2026-6-10", "type": "emoji", "category": "keigo", "tw": 3}, {"id": "43139999", "title": "會動的！炸蝦貓的軟萌日常2", "url": "https://store.line.me/stickershop/product/33010474/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/33010474/LINEStorePC/main.png", "date": "2026-2-19", "type": "animated-sticker", "category": "shrimp", "tw": 3}, {"id": "42879637", "title": "貼心不佔位！虎斑貓的台灣生活", "url": "https://store.line.me/stickershop/product/32813076/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/32813076/LINEStorePC/main.png", "date": "2026-2-2", "type": "sticker", "category": "others", "tw": 2}, {"id": "43522568", "title": "鹿角蕨的心情：自訂留言貼圖", "url": "https://store.line.me/stickershop/product/33356870/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/33356870/LINEStorePC/main.png", "date": "2026-3-24", "type": "sticker", "category": "plants", "tw": 2}, {"id": "505272", "title": "沖繩方言貓貓：日常對話貼圖", "url": "https://store.line.me/emojishop/product/69e9d45b69c93b016a233f24/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/69e9d45b69c93b016a233f24/iPhone/main.png", "date": "2026-4-23", "type": "emoji", "category": "okinawa", "tw": 2}, {"id": "468841", "title": "表情超豐富！小風獅動態貼", "url": "https://store.line.me/emojishop/product/698bf3ce26782733e6b57f58/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/698bf3ce26782733e6b57f58/iPhone/main.png", "date": "2026-2-11", "type": "animated-emoji", "category": "okinawa", "tw": 2}, {"id": "576417", "title": "日常手勢、表情與工作實用表情貼", "url": "https://store.line.me/emojishop/product/6a58a0a00e78c061cc26e6c3/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/6a58a0a00e78c061cc26e6c3/iPhone/main.png", "date": "2026-7-21", "type": "emoji", "category": "keigo", "tw": 2}, {"id": "485203", "title": "萌萌小貓熊（動態表情貼）", "url": "https://store.line.me/emojishop/product/69b79ad326782733e6b5f09a/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/69b79ad326782733e6b5f09a/iPhone/main.png", "date": "2026-3-16", "type": "animated-emoji", "category": "others", "tw": 2}, {"id": "570329", "title": "動態沖繩風獅爺表情貼", "url": "https://store.line.me/emojishop/product/6a50857c37efe94940a2ab66/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/6a50857c37efe94940a2ab66/iPhone/main.png", "date": "2026-7-10", "type": "animated-emoji", "category": "okinawa", "tw": 2}, {"id": "5448977", "title": "沖繩艷陽天！可愛風獅爺與南國風情", "url": "https://store.line.me/themeshop/product/1660cf14-7a76-480a-9d3f-81fa6b7279ab/zh-Hant", "img": "https://creators-market-all.line-scdn.net/line-user-stickers-sticker-4320/sticker/43204866/main/0d42bc59077698da3b7f6ecfc2240f63f74ef78f.png", "date": "2026-1-30", "type": "theme", "category": "okinawa", "tw": 2}, {"id": "45461748", "title": "沖繩風獅爺-會振動的圖", "url": "https://store.line.me/stickershop/product/34531109/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/34531109/LINEStorePC/main.png", "date": "2026-6-21", "type": "animated-sticker", "category": "okinawa", "tw": 2}, {"id": "44932179", "title": "可愛鹿角蕨：鹿友的日常對話", "url": "https://store.line.me/stickershop/product/34186643/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/34186643/LINEStorePC/main.png", "date": "2026-5-26", "type": "sticker", "category": "plants", "tw": 2}, {"id": "5495051", "title": "喵酒鬼樂園 (MEOW-HOL PARADISE)1", "url": "https://store.line.me/themeshop/product/ea044365-fef5-41a8-abad-7aaeff7b0a3b/zh-Hant", "img": "https://creators-market-all.line-scdn.net/line-user-stickers-sticker-4413/sticker/44137243/main/d5ccb9ecdd4bcda6026002a17b032ae217b9e79e.png", "date": "2026-3-27", "type": "theme", "category": "okinawa", "tw": 2}, {"id": "5536899", "title": "沖繩守護小神獸！風獅爺6", "url": "https://store.line.me/themeshop/product/bfc96702-b2d2-4952-958c-aa67f298d608/zh-Hant", "img": "https://creators-market-all.line-scdn.net/line-user-stickers-sticker-4203/sticker/42031475/main/5613e7eed8de03bbe4d6d267896552d12dacb738.png", "date": "2026-5-25", "type": "theme", "category": "okinawa", "tw": 1}, {"id": "460049", "title": "羊毛氈萌貓：溫暖手作小表情", "url": "https://store.line.me/emojishop/product/69730f54e83f9025058a60aa/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/69730f54e83f9025058a60aa/iPhone/main.png", "date": "2026-1-27", "type": "emoji", "category": "others", "tw": 1}, {"id": "5480462", "title": "沖繩艷陽天！可愛風獅爺與南國風情-2026.2-", "url": "https://store.line.me/themeshop/product/b726b654-add4-4715-8d90-c90facf80893/zh-Hant", "img": "https://creators-market-all.line-scdn.net/line-user-stickers-sticker-4213/sticker/42134265/main/f099fdc462b1fa0ba53b62beb9c9c77a607b3421.png", "date": "2026-3-11", "type": "theme", "category": "okinawa", "tw": 1}, {"id": "452555", "title": "療癒系水彩柴犬：暖心小表情", "url": "https://store.line.me/emojishop/product/695f4f2ca838a32154c786ee/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/695f4f2ca838a32154c786ee/iPhone/main.png", "date": "2026-1-11", "type": "emoji", "category": "others", "tw": 1}, {"id": "525240", "title": "甜美粉紅小熊", "url": "https://store.line.me/emojishop/product/6a0e9748cb1c2e53ef8356fd/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/6a0e9748cb1c2e53ef8356fd/iPhone/main.png", "date": "2026-5-25", "type": "emoji", "category": "others", "tw": 1}, {"id": "5481213", "title": "沖繩守護小神獸！風獅爺3", "url": "https://store.line.me/themeshop/product/14eb5a13-a7b4-4d5c-bf8b-e02f87c8b704/zh-Hant", "img": "https://creators-market-all.line-scdn.net/line-user-stickers-sticker-4352/sticker/43522568/main/2c25005dbf913fed560665de9c40d8b64ec93b7d.png", "date": "2026-3-11", "type": "theme", "category": "okinawa", "tw": 1}, {"id": "511135", "title": "沖繩風獅爺：禮貌用語與方言篇", "url": "https://store.line.me/emojishop/product/69f7f4bd9b8c7868c09cdc6c/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/69f7f4bd9b8c7868c09cdc6c/iPhone/main.png", "date": "2026-5-6", "type": "emoji", "category": "okinawa", "tw": 1}, {"id": "5671450", "title": "沖繩時光：彩虹海洋與手繪霓虹", "url": "https://store.line.me/themeshop/product/256d2222-8981-40b2-8427-33204e10fdcb/zh-Hant", "img": "https://shop.line-scdn.net/themeshop/v1/products/25/6d/22/256d2222-8981-40b2-8427-33204e10fdcb/1/WEBSTORE/icon_198x278.png", "date": "2026-9-4", "type": "theme", "category": "okinawa", "tw": 1}, {"id": "5512409", "title": "沖繩守護小神獸！風獅爺5", "url": "https://store.line.me/themeshop/product/543dc88d-fb31-42b0-9308-0d63051703ce/zh-Hant", "img": "https://creators-market-all.line-scdn.net/line-user-stickers-sticker-4233/sticker/42335618/main/288716a83e7f7650304b7534a953c49290cece35.png", "date": "2026-4-21", "type": "theme", "category": "okinawa", "tw": 1}, {"id": "5619708", "title": "沖繩守護小神獸！風獅爺8", "url": "https://store.line.me/themeshop/product/1a26a5a6-f975-41ba-9aef-4e11785a4406/zh-Hant", "img": "https://shop.line-scdn.net/themeshop/v1/products/1a/26/a5/1a26a5a6-f975-41ba-9aef-4e11785a4406/4/WEBSTORE/icon_198x278.png", "date": "2026-7-24", "type": "theme", "category": "okinawa", "tw": 1}, {"id": "5669556", "title": "沖繩守護小神獸！風獅爺10", "url": "https://store.line.me/themeshop/product/aeed7429-fa05-4287-aac3-58c25b5a1c04/zh-Hant", "img": "https://shop.line-scdn.net/themeshop/v1/products/ae/ed/74/aeed7429-fa05-4287-aac3-58c25b5a1c04/1/WEBSTORE/icon_198x278.png", "date": "2026-9-4", "type": "theme", "category": "okinawa", "tw": 1}, {"id": "502803", "title": "PTA役員/敬語犬絵文字/ビジネス業務連絡", "url": "https://store.line.me/emojishop/product/69e58b8e9b8c7868c09bcbb1/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/69e58b8e9b8c7868c09bcbb1/iPhone/main.png", "date": "2026-4-20", "type": "emoji", "category": "keigo", "tw": 1}, {"id": "43337073", "title": "療癒鹿角蕨！小亞猴的實用日常貼圖", "url": "https://store.line.me/stickershop/product/33170790/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/33170790/LINEStorePC/main.png", "date": "2026-3-6", "type": "sticker", "category": "plants", "tw": 1}, {"id": "5528736", "title": "鹿角蕨療癒感主題", "url": "https://store.line.me/themeshop/product/c035f84d-5436-4ddf-98e0-8f95243f34bb/zh-Hant", "img": "https://creators-market-all.line-scdn.net/line-user-stickers-sticker-4469/sticker/44695532/main/9f660db2befe4525e01c1ac3c852d31ccc438d7e.png", "date": "2026-5-14", "type": "theme", "category": "plants", "tw": 1}, {"id": "44137243", "title": "圓滾滾灰耳貓：日常大會話(無文字)", "url": "https://store.line.me/stickershop/product/33778666/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/33778666/LINEStorePC/main.png", "date": "2026-4-29", "type": "sticker", "category": "others", "tw": 1}, {"id": "42335618", "title": "いつでも使えるシーサーの日常使いスタンプ", "url": "https://store.line.me/stickershop/product/32365349/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/32365349/LINEStorePC/main.png", "date": "2025-12-23", "type": "sticker", "category": "okinawa", "tw": 1}, {"id": "5556914", "title": "沖繩守護小神獸！風獅爺7", "url": "https://store.line.me/themeshop/product/120d77ff-6717-45e2-950c-31dcb7a2b3a3/zh-Hant", "img": "https://shop.line-scdn.net/themeshop/v1/products/12/0d/77/120d77ff-6717-45e2-950c-31dcb7a2b3a3/1/WEBSTORE/icon_198x278.png", "date": "2026-6-17", "type": "theme", "category": "okinawa", "tw": 1}, {"id": "5669420", "title": "沖繩守護小神獸！風獅爺9", "url": "https://store.line.me/themeshop/product/a0eed470-b409-4f5a-832b-549cf53ef3a7/zh-Hant", "img": "https://shop.line-scdn.net/themeshop/v1/products/a0/ee/d4/a0eed470-b409-4f5a-832b-549cf53ef3a7/1/WEBSTORE/icon_198x278.png", "date": "2026-9-2", "type": "theme", "category": "okinawa", "tw": 1}, {"id": "447083", "title": "沖繩守護神：可愛風獅爺小表情", "url": "https://store.line.me/emojishop/product/694cce6f4d3bea396fe5361c/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/694cce6f4d3bea396fe5361c/iPhone/main.png", "date": "2026-1-2", "type": "emoji", "category": "okinawa", "tw": 1}, {"id": "43494311", "title": "那個褐色的傢伙在擋路！超有禮貌貼圖", "url": "https://store.line.me/stickershop/product/33299172/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/33299172/LINEStorePC/main.png", "date": "2026-3-22", "type": "sticker", "category": "others", "tw": 1}, {"id": "5597839", "title": "華麗視覺系 ‧ 哥德暗黑美學2", "url": "https://store.line.me/themeshop/product/b641e208-28b9-4707-9eca-c1d1f1d92418/zh-Hant", "img": "https://shop.line-scdn.net/themeshop/v1/products/b6/41/e2/b641e208-28b9-4707-9eca-c1d1f1d92418/1/WEBSTORE/icon_198x278.png", "date": "2026-7-3", "type": "theme", "category": "others", "tw": 1}, {"id": "529122", "title": "實用文字表情貼：可愛敬語兔兔", "url": "https://store.line.me/emojishop/product/6a13edc2cb1c2e53ef8372ec/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/6a13edc2cb1c2e53ef8372ec/iPhone/main.png", "date": "2026-5-25", "type": "emoji", "category": "keigo", "tw": 1}, {"id": "5488233", "title": "沖繩守護小神獸！風獅爺4", "url": "https://store.line.me/themeshop/product/f19dadd0-4447-440f-a515-c0d8915fcd91/zh-Hant", "img": "https://creators-market-all.line-scdn.net/line-user-stickers-sticker-4289/sticker/42894180/main/8f2f5d0ef35153894311168707f55b318f328141.png", "date": "2026-3-19", "type": "theme", "category": "okinawa", "tw": 1}, {"id": "560676", "title": "萬用簡約商務禮貌貼圖-職場/家長會/日常", "url": "https://store.line.me/emojishop/product/6a4383ee198a1f172e43c23a/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/6a4383ee198a1f172e43c23a/iPhone/main.png", "date": "2026-6-30", "type": "emoji", "category": "keigo", "tw": 1}, {"id": "529980", "title": "實用文字表情貼：可愛敬語白貓", "url": "https://store.line.me/emojishop/product/6a1696e3ca472a3a9ec331dd/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/6a1696e3ca472a3a9ec331dd/iPhone/main.png", "date": "2026-5-27", "type": "emoji", "category": "keigo", "tw": 1}, {"id": "478451", "title": "表情超豐富！小風獅動態貼2", "url": "https://store.line.me/emojishop/product/69a941e5ff4a66421d9ad854/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/69a941e5ff4a66421d9ad854/iPhone/main.png", "date": "2026-3-5", "type": "animated-emoji", "category": "okinawa", "tw": 1}, {"id": "490813", "title": "無文字 羊毛氈小白貓", "url": "https://store.line.me/emojishop/product/69c22b567febac5204444d77/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/69c22b567febac5204444d77/iPhone/main.png", "date": "2026-3-24", "type": "emoji", "category": "others", "tw": 1}, {"id": "491959", "title": "小亞猴/亞洲鹿角蕨/日常貼圖：里德利小精靈", "url": "https://store.line.me/emojishop/product/69c4d58c029b0f74c3bd5efd/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/69c4d58c029b0f74c3bd5efd/iPhone/main.png", "date": "2026-3-26", "type": "emoji", "category": "plants", "tw": 0}, {"id": "43326162", "title": "會動的！炸蝦貓的軟萌日常3", "url": "https://store.line.me/stickershop/product/33220558/zh-Hant", "img": "https://stickershop.line-scdn.net/stickershop/v1/product/33220558/LINEStorePC/main.png", "date": "2026-3-11", "type": "animated-sticker", "category": "shrimp", "tw": 0}, {"id": "561537", "title": "療癒鹿角蕨：日常職場禮貌貼圖", "url": "https://store.line.me/emojishop/product/6a44b4efad4e7e79479123dc/zh-Hant", "img": "https://stickershop.line-scdn.net/sticonshop/v1/product/6a44b4efad4e7e79479123dc/iPhone/main.png", "date": "2026-7-2", "type": "emoji", "category": "plants", "tw": 0}];
+        const FEATURE_COMING_SOON = false;
+
+        const SPREADSHEET_ID = '1sZ-NHSGmmXdvwDbDnsZtWSNdGt-4W3gGxhCs6ZOdp5s';
+        const GID_MASTER = '0';
+        const GID_HEART = '414139365';
+
+        // 🛑 非表示にするItem IDリスト
+        const EXCLUDE_ITEM_IDS = [
+            '41915904',
+            '42134265',
+            '42894180',
+            '43204866',
+            '43309479',
+            '43522568',
+            '540497',
+            '47126076'
+        ];
+        // =======================================================
+
+        // 🐞 デバッグログ（公開時は false）
+        const DEBUG = /[?&]debug\b/.test(location.search);
+        const dlog = (...a) => { if (DEBUG) console.log('[debug]', ...a); };
+
+        // 📋 スプレッドシートの列名 → 内部フィールド（実データの列名に明確に対応）
+        const COLUMN_MAP = {
+            id: 'Item ID',
+            title: '日本語タイトル',
+            type: 'カテゴリ',
+            url: 'ストアURL',
+            img: 'サムネイルURL',
+            date: '販売開始日',
+            pickMonth: '推し月',
+            premiumMonth: 'プレミアム月'
+        };
+
+        // 年月を YYYY-MM に統一（2026-10 / 2026/10 / 2026.10 / 2026-10-01 / 2026年10月 / 全角数字 / 10/2026 に対応）
+        function normalizeYM(val) {
+            if (val === null || val === undefined) return '';
+            let t = String(val).replace(/^\uFEFF/, '').trim()
+                .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+                .replace(/[－−ー‐–—]/g, '-');
+            if (!t) return '';
+            let m = t.match(/^(\d{4})\D+(\d{1,2})/);
+            if (m) {
+                const mon = parseInt(m[2], 10);
+                return (mon >= 1 && mon <= 12) ? `${m[1]}-${String(mon).padStart(2, '0')}` : '';
+            }
+            m = t.match(/^(\d{1,2})\/(\d{4})$/); // 10/2026
+            if (m) {
+                const mon = parseInt(m[1], 10);
+                return (mon >= 1 && mon <= 12) ? `${m[2]}-${String(mon).padStart(2, '0')}` : '';
+            }
+            return '';
+        }
+
+        // 年月が現在年月か（比較は常に YYYY-MM 同士）
+        const isPickNow = s => s.pickMonth !== '' && s.pickMonth === getCurrentYM();
+        const isPremiumNow = s => s.premiumMonth !== '' && s.premiumMonth === getCurrentYM();
+
+        function getCurrentYM() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        let allStamps = [];
+        let currentCategory = 'okinawa';
+        let currentType = 'all';
+        let currentSort = 'hearts';
+        let searchQuery = '';
+        let activeFeature = null;
+
+        async function fetchTabCSV(gid) {
+            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${gid}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Fetch failed for gid: ${gid}`);
+            return await response.text();
+        }
+
+        function parseCSVText(csvText) {
+            return new Promise((resolve) => {
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function (results) {
+                        resolve(results.data);
+                    },
+                    error: function () {
+                        resolve([]);
+                    }
+                });
+            });
+        }
+
+        async function fetchSpreadsheetData() {
+            const now = new Date();
+            const ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            return TW_WORKS.map(w => ({
+                id: w.id, title: w.title, url: w.url, type: w.type, img: w.img, date: w.date,
+                status: '', pickMonth: w.tw >= 2 ? ym : '', premiumMonth: '', premiumHasValue: false,
+                rowText: w.title, hearts: 0, tw: w.tw, isRecommended: w.tw >= 2, isPremium: false,
+                category: w.category
+            }));
+        }
+
+        function render() {
+            const grid = document.getElementById('stamp-grid');
+            const emptyState = document.getElementById('empty-state');
+            const featureComingSoon = document.getElementById('feature-coming-soon');
+            grid.innerHTML = '';
+
+            const isFeatureActive = activeFeature !== null || currentCategory === 'recommended';
+            if (isFeatureActive && FEATURE_COMING_SOON) {
+                grid.classList.add('hidden');
+                emptyState.classList.add('hidden');
+                featureComingSoon.classList.remove('hidden');
+                updateBadgeCounts();
+                return;
+            }
+
+            featureComingSoon.classList.add('hidden');
+
+            let filtered;
+            if (activeFeature !== null) {
+                // 🌟 特集表示中：特集条件だけを適用（カテゴリ・種類・検索は一切見ない）
+                filtered = allStamps.filter(stamp =>
+                    activeFeature === 'recommended' ? isPickNow(stamp) : stamp.isPremium);
+            } else {
+                // 通常時：カテゴリ + 種類 + 検索
+                filtered = allStamps.filter(stamp => {
+                    if (currentCategory === 'recommended') {
+                        if (!isPickNow(stamp)) return false;
+                    } else if (stamp.category !== currentCategory) {
+                        return false;
+                    }
+                    const matchType = currentType === 'all' || stamp.type === currentType;
+                    const matchSearch = searchQuery === '' || stamp.title.toLowerCase().includes(searchQuery.toLowerCase());
+                    return matchType && matchSearch;
+                });
+            }
+
+            if (activeFeature === 'premium') {
+                // 👑 プレミアム作品：① 今月解禁 → ② それ以外。各グループ内は作品の販売開始日の新しい順
+                filtered.sort((a, b) => {
+                    const ga = isPremiumNow(a) ? 0 : 1, gb = isPremiumNow(b) ? 0 : 1;
+                    if (ga !== gb) return ga - gb;
+                    return new Date(b.date || 0) - new Date(a.date || 0);
+                });
+            } else if (currentSort === 'newest') {
+                filtered.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+            } else if (currentSort === 'hearts') {
+                filtered.sort((a, b) => {
+                    if ((b.tw || 0) !== (a.tw || 0)) {
+                        return (b.tw || 0) - (a.tw || 0);
+                    }
+                    return new Date(b.date || 0) - new Date(a.date || 0);
+                });
+            }
+
+            updateBadgeCounts();
+            dlog('activeFeature:', activeFeature, '/ 絞り込み後件数:', filtered.length);
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.classList.remove('hidden');
+
+            filtered.forEach(stamp => {
+                const today = new Date();
+                const releaseDate = stamp.date ? new Date(stamp.date) : null;
+                const diffTime = releaseDate ? (today - releaseDate) : 0;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                const isNew = diffDays >= 0 && diffDays <= 30;
+
+                const isHot = isNew && stamp.hearts > 0;
+                const isClassic = !isNew && stamp.hearts >= 20;
+
+                let badgeLabel = '貼圖';
+                let badgeStyle = 'bg-pink-50 text-pink-600 border border-pink-100';
+
+                if (stamp.type === 'theme') {
+                    badgeLabel = '主題';
+                    badgeStyle = 'bg-teal-50 text-teal-600 border border-teal-100';
+                } else if (stamp.type === 'emoji') {
+                    badgeLabel = '表情貼';
+                    badgeStyle = 'bg-purple-50 text-purple-600 border border-purple-100';
+                } else if (stamp.type === 'animated-sticker') {
+                    badgeLabel = '動態貼圖';
+                    badgeStyle = 'bg-rose-50 text-rose-600 border border-rose-100';
+                } else if (stamp.type === 'animated-emoji') {
+                    badgeLabel = '動態表情貼';
+                    badgeStyle = 'bg-indigo-50 text-indigo-600 border border-indigo-100';
+                } else if (stamp.type === 'popup-sticker') {
+                    badgeLabel = '彈出貼圖';
+                    badgeStyle = 'bg-amber-50 text-amber-600 border border-amber-100';
+                } else if (stamp.type === 'effect-sticker') {
+                    badgeLabel = '特效貼圖';
+                    badgeStyle = 'bg-cyan-50 text-cyan-600 border border-cyan-100';
+                }
+
+                // ✨ 推しバッジ
+                const recommendBadge = stamp.isRecommended
+                    ? `<span class="text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><i class="fa-solid fa-star text-amber-500 text-[9px]"></i>${stamp.pickMonth.replace('-', '.')} 熱賣</span>`
+                    : '';
+
+                // 👑 プレミアムバッジ
+                const premiumBadge = stamp.isPremium
+                    ? `<span class="text-[10px] text-purple-700 font-bold bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><i class="fa-solid fa-crown text-purple-500 text-[9px]"></i>${stamp.premiumMonth ? stamp.premiumMonth.replace('-', '.') + ' ' : ''}プレミアム</span>`
+                    : '';
+
+                // 🆕 今月解禁バッジ（プレミアム作品一覧で、プレミアム月＝現在年月の作品のみ）
+                const unlockBadge = (activeFeature === 'premium' && isPremiumNow(stamp))
+                    ? `<span class="text-[10px] text-white font-bold bg-purple-600 px-1.5 py-0.5 rounded-full">今月解禁</span>`
+                    : '';
+
+                // 🏷️ 急上昇・定番バッジ
+                let trendBadge = '';
+                if (isHot) {
+                    trendBadge = `<span class="text-[10px] text-orange-600 font-bold bg-orange-50 border border-orange-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><i class="fa-solid fa-fire text-orange-500 text-[9px]"></i>急上昇</span>`;
+                } else if (isClassic) {
+                    trendBadge = `<span class="text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><i class="fa-solid fa-crown text-amber-500 text-[9px]"></i>定番</span>`;
+                }
+
+                const heartBadge = stamp.hearts > 0
+                    ? `<span class="text-[10px] text-rose-500 font-bold bg-rose-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><i class="fa-solid fa-heart text-[8px]"></i>${stamp.hearts}</span>`
+                    : '';
+
+                const dateHtml = stamp.date
+                    ? `<p class="text-[10px] text-gray-400 font-bold flex items-center gap-1 pt-1"><i class="fa-regular fa-calendar-days text-[9px] text-gray-400"></i>${stamp.date} 上市</p>`
+                    : '';
+
+                const card = `
+                    <a href="${stamp.url}" target="_blank" rel="noopener" 
+                       class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col hover:shadow-md transition duration-200 active:scale-[0.98]">
+                        <div class="img-aspect-square bg-white flex items-center justify-center p-3 border-b border-gray-100">
+                            <img src="${stamp.img}" alt="${stamp.title}" loading="lazy" class="max-w-full max-h-full object-contain"
+                                 onerror="this.onerror=null; this.src='https://placehold.co/150x150/ffffff/cccccc?text=LINE';">
+                        </div>
+                        <div class="p-3 flex flex-col justify-between flex-grow space-y-2">
+                            <div class="space-y-1">
+                                <div class="flex items-center justify-between gap-1 flex-wrap">
+                                    <div class="flex items-center gap-1 flex-wrap">
+                                        <span class="inline-block text-[9px] font-black px-1.5 py-0.5 rounded ${badgeStyle}">${badgeLabel}</span>
+                                        ${recommendBadge}
+                                        ${unlockBadge}
+                                        ${premiumBadge}
+                                        ${trendBadge}
+                                    </div>
+                                    ${heartBadge}
+                                </div>
+                                <h3 class="text-xs font-bold text-gray-800 line-clamp-2 leading-snug h-[34px]">${stamp.title}</h3>
+                                ${dateHtml}
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] text-gray-400 font-bold border-t border-gray-50 pt-2">
+                                <span class="text-[#00C300]">LINE STORE</span>
+                                <i class="fa-solid fa-chevron-right text-[8px] text-[#00C300]"></i>
+                            </div>
+                        </div>
+                    </a>
+                `;
+                grid.insertAdjacentHTML('beforeend', card);
+            });
+        }
+
+        function toggleFeature(featureKey) {
+            if (activeFeature === featureKey) {
+                clearFeature();
+                return;
+            }
+
+            activeFeature = featureKey;
+            updateFeatureUI();
+            render();
+        }
+
+        function clearFeature() {
+            activeFeature = null;
+            updateFeatureUI();
+            render();
+        }
+
+        function updateFeatureUI() {
+            const statusText = document.getElementById('feature-status-text');
+            const resetBar = document.getElementById('feature-reset-bar');
+            const resetLabel = document.getElementById('feature-reset-label');
+            const searchContainer = document.getElementById('search-input-container');
+            // 特集中は検索・カテゴリ・並び替え・種類フィルターをまとめて非表示にする（選択値は変更しないので、解除後に復帰）
+            const filterPanel = document.getElementById('filter-panel');
+            if (filterPanel) filterPanel.classList.toggle('hidden', activeFeature !== null);
+
+            ['recommended', 'premium'].forEach(key => {
+                const btn = document.getElementById(`feature-btn-${key}`);
+                if (btn) {
+                    if (activeFeature === key) {
+                        btn.classList.add('ring-4', 'ring-[#00C300]', 'scale-[1.02]');
+                    } else {
+                        btn.classList.remove('ring-4', 'ring-[#00C300]', 'scale-[1.02]');
+                    }
+                }
+            });
+
+            if (activeFeature) {
+                statusText.classList.remove('hidden');
+                resetBar.classList.remove('hidden');
+                // 🔍 特集絞り込み中は検索バーを非表示にする
+                if (searchContainer) searchContainer.classList.add('hidden');
+
+                let title = '特集';
+                if (activeFeature === 'recommended') title = '✨ 台灣熱賣特集';
+                if (activeFeature === 'premium') title = '👑 プレミアム作品';
+
+                resetLabel.innerHTML = `<i class="fa-solid fa-sparkles text-[#00C300]"></i> <strong>${title}</strong> を表示中`;
+            } else {
+                statusText.classList.add('hidden');
+                resetBar.classList.add('hidden');
+                // 🔍 通常画面では検索バーを表示する
+                if (searchContainer) searchContainer.classList.remove('hidden');
+            }
+        }
+
+        function changeSort(type) {
+            currentSort = type;
+            localStorage.setItem('portfoliotw_sort', type);
+
+            const btnNewest = document.getElementById('sort-newest');
+            const btnHearts = document.getElementById('sort-hearts');
+
+            if (type === 'newest') {
+                btnNewest.className = 'text-[#00C300] font-bold transition';
+                btnHearts.className = 'text-gray-400 hover:text-[#00C300] transition';
+            } else {
+                btnHearts.className = 'text-[#00C300] font-bold transition';
+                btnNewest.className = 'text-gray-400 hover:text-[#00C300] transition';
+            }
+            if (allStamps.length > 0) render();
+        }
+
+        function updateBadgeCounts() {
+            const recommendedCount = allStamps.filter(isPickNow).length;
+            const okinawaCount = allStamps.filter(s => s.category === 'okinawa').length;
+            const keigoCount = allStamps.filter(s => s.category === 'keigo').length;
+            const plantsCount = allStamps.filter(s => s.category === 'plants').length;
+            const shrimpCount = allStamps.filter(s => s.category === 'shrimp').length;
+            const othersCount = allStamps.filter(s => s.category === 'others').length;
+
+            document.getElementById('count-recommended').textContent = recommendedCount;
+            document.getElementById('count-okinawa').textContent = okinawaCount;
+            document.getElementById('count-keigo').textContent = keigoCount;
+            document.getElementById('count-plants').textContent = plantsCount;
+            document.getElementById('count-shrimp').textContent = shrimpCount;
+            document.getElementById('count-others').textContent = othersCount;
+            document.getElementById('total-count').textContent = `共 ${allStamps.length} 件作品・台灣也能購買！`;
+        }
+
+        function switchCategory(category) {
+            if (activeFeature) {
+                activeFeature = null;
+                updateFeatureUI();
+            }
+
+            currentCategory = category;
+            localStorage.setItem('portfoliotw_category', category);
+
+            ['recommended', 'okinawa', 'keigo', 'plants', 'shrimp', 'others'].forEach(cat => {
+                const tab = document.getElementById(`tab-${cat}`);
+                if (tab) {
+                    if (cat === category) {
+                        tab.classList.add('btn-active');
+                    } else {
+                        tab.classList.remove('btn-active');
+                    }
+                }
+            });
+
+            if (allStamps.length > 0) render();
+        }
+
+        function filterType(type) {
+            currentType = type;
+            localStorage.setItem('portfoliotw_type', type);
+
+            ['all', 'sticker', 'animated-sticker', 'popup-sticker', 'effect-sticker', 'emoji', 'animated-emoji', 'theme'].forEach(t => {
+                const btn = document.getElementById(`sub-${t}`);
+                if (btn) {
+                    if (t === type) {
+                        btn.classList.add('btn-active');
+                    } else {
+                        btn.classList.remove('btn-active');
+                    }
+                }
+            });
+
+            if (allStamps.length > 0) render();
+        }
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            render();
+        });
+
+        function showError() {
+            document.getElementById('loading-placeholder').classList.add('hidden');
+            document.getElementById('error-message').classList.remove('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const savedSort = localStorage.getItem('portfoliotw_sort') || 'hearts';
+            const savedCategory = localStorage.getItem('portfoliotw_category') || 'recommended';
+            const savedType = localStorage.getItem('portfoliotw_type') || 'all';
+
+            changeSort(savedSort);
+            switchCategory(savedCategory);
+            filterType(savedType);
+
+            const stamps = await fetchSpreadsheetData();
+            allStamps = stamps;
+
+            document.getElementById('loading-placeholder').classList.add('hidden');
+            if (stamps && stamps.length > 0) {
+                render();
+            } else {
+                showError();
+            }
+        });
+    </script>
+</body>
+
+</html>
