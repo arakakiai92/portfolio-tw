@@ -191,7 +191,7 @@
                     <button onclick="changeSort('newest')" id="sort-newest" class="text-[#00C300] transition">📅
                         最新</button>
                     <span class="text-gray-200">|</span>
-                    <button onclick="changeSort('hearts')" id="sort-hearts" class="hover:text-[#00C300] transition">❤️
+                    <button onclick="changeSort('hearts')" id="sort-hearts" class="hover:text-[#00C300] transition">🔥
                         台灣熱賣</button>
                 </div>
 
@@ -468,8 +468,8 @@
 
                 const isNew = diffDays >= 0 && diffDays <= 30;
 
-                const isHot = isNew && stamp.hearts > 0;
-                const isClassic = !isNew && stamp.hearts >= 20;
+                const isHot = (stamp.tw || 0) >= 6;
+                const isClassic = !isHot && (stamp.tw || 0) >= 3;
 
                 let badgeLabel = '貼圖';
                 let badgeStyle = 'bg-pink-50 text-pink-600 border border-pink-100';
@@ -512,9 +512,9 @@
                 // 🏷️ 急上昇・定番バッジ
                 let trendBadge = '';
                 if (isHot) {
-                    trendBadge = `<span class="text-[10px] text-orange-600 font-bold bg-orange-50 border border-orange-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><i class="fa-solid fa-fire text-orange-500 text-[9px]"></i>急上昇</span>`;
+                    trendBadge = `<span class="text-[10px] text-orange-600 font-bold bg-orange-50 border border-orange-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><i class="fa-solid fa-fire text-orange-500 text-[9px]"></i>超熱賣</span>`;
                 } else if (isClassic) {
-                    trendBadge = `<span class="text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><i class="fa-solid fa-crown text-amber-500 text-[9px]"></i>定番</span>`;
+                    trendBadge = `<span class="text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><i class="fa-solid fa-crown text-amber-500 text-[9px]"></i>經典</span>`;
                 }
 
                 const heartBadge = stamp.hearts > 0
@@ -719,6 +719,7 @@
             }
         });
     </script>
+<script data-goatcounter="https://arakakiai.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 
 </html>
